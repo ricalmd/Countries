@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Countries"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="InfoPaíses" Height="450" Width="800">
     <Grid>
-        
+        <Button Content="Ver" Name="btnVerPais" FontWeight="Bold" FontSize="20px" HorizontalAlignment="Left" Margin="656,336,0,0" VerticalAlignment="Top" Width="91" Height="54" Click="btnVerPais_Click"/>
+        <ComboBox Name="cbxListaPaises" FontWeight="Bold" FontSize="12px" HorizontalAlignment="Left" Margin="32,43,0,0" VerticalAlignment="Top" Width="300" Height="37"/>
     </Grid>
 </Window>

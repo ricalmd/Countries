@@ -24,5 +24,10 @@ namespace Countries
         {
             InitializeComponent();
         }
+
+        private void btnVerPais_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
