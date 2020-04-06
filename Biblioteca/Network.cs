@@ -23,7 +23,7 @@ namespace Biblioteca
                 return new Response
                 {
                     Connect = false,
-                    Message = "Problemas com a ligação à Internet",
+                    Message = "Sem ligação à Internet",
                 };
             }
         }

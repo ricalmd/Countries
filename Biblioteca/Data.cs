@@ -25,12 +25,9 @@ namespace Biblioteca
                 liteConnection = new SQLiteConnection("Data Source=" + path);
                 liteConnection.Open();
 
-                /*string sqlcommand = 
-                    "CREATE TABLE IF NOT EXISTS countries(Name VARCHAR(100), Capital VARCHAR(100), Region VARCHAR(100), " +
-                    "Subregion VARCHAR(100), Population INT, Gini REAL, Flag VARCHAR(100))";*/
-
                 string sqlcommand =
-                    "CREATE TABLE IF NOT EXISTS countries(Name VARCHAR(100),Capital VARCHAR(100))";
+                    "CREATE TABLE IF NOT EXISTS countries(Name VARCHAR(100),Capital VARCHAR(100), Region VARCHAR(100)," +
+                    "Subregion VARCHAR(100), Population INT, Gini REAL, Flag VARCHAR(100))";
 
                 command = new SQLiteCommand(sqlcommand, liteConnection);
 
@@ -48,13 +45,11 @@ namespace Biblioteca
             {
                 foreach (var country in countries)
                 {
-                    /*string sql = string.Format("INSERT INTO countries(Name, Capital, Region, Subregion," +
-                        "Population, Gini, Flag)VALUES('{0}','{1}','{2}','{3}',{4},'{5}','{6}')",country.Name, country.Capital,
-                        country.Region, country.Subregion, country.Population, country.Gini, country.Flag);*/
-
                     string sql =
-                        string.Format("INSERT INTO countries(Name,Capital)VALUES('{0}','{1}')",
-                        country.Name.Replace("'", "u "), country.Capital.Replace("'", " "));
+                        string.Format("INSERT INTO countries(Name,Capital,Region,Subregion,Population,Gini,Flag)" +
+                        "VALUES('{0}','{1}','{2}','{3}',{4},'{5}','{6}')",
+                        country.Name.Replace("'", "´"), country.Capital.Replace("'", "´"), country.Region,
+                        country.Subregion, country.Population, country.Gini,country.Flag);
 
                     command = new SQLiteCommand(sql, liteConnection);
 
@@ -74,9 +69,7 @@ namespace Biblioteca
 
             try
             {
-                //string sql = "SELECT Name, Capital, Region, Subregion, Population, Gini, Flag FROM countries";
-
-                string sql = "SELECT Name,Capital FROM countries";
+                string sql = "SELECT Name,Capital,Region,Subregion,Population,Gini,Flag FROM countries";
 
                 command = new SQLiteCommand(sql, liteConnection);
 
@@ -86,15 +79,13 @@ namespace Biblioteca
                 {
                     countries.Add(new Country
                     {
-                        /*Name = (string)reader["Name"],
+                        Name = (string)reader["Name"],
                         Capital = (string)reader["Capital"],
                         Region = (string)reader["Region"],
                         Subregion = (string)reader["Subregion"],
                         Population = (int)reader["Population"],
                         Gini = (double)reader["Gini"],
-                        Flag = (string)reader["Flag"],*/
-                        Name = (string)reader["Name"],
-                        Capital = (string)reader["Capital"],
+                        Flag = (string)reader["Flag"]
                     });
                 }
                 liteConnection.Close();
