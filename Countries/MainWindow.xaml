@@ -15,5 +15,6 @@
         </GroupBox>
         <ProgressBar Name="pgbProgresso" HorizontalAlignment="Left" Height="22" Margin="32,374,0,0" VerticalAlignment="Top" Width="326"/>
         <Image Name="imgFlag" HorizontalAlignment="Left" Height="100" Margin="401,245,0,0" VerticalAlignment="Top" Width="262"/>
+        <Label Name="lblAvisoImg" Content="" HorizontalAlignment="Left" Margin="401,214,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.469,0.006"/>
     </Grid>
 </Window>

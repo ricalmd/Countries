@@ -4,7 +4,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Windows;
 
-namespace Biblioteca
+namespace Biblioteca.Services
 {
     public class Data
     {
@@ -43,19 +43,27 @@ namespace Biblioteca
         {
             try
             {
-                foreach (var country in countries)
+                if (countries != null)
                 {
-                    string sql =
-                        string.Format("INSERT INTO countries(Name,Capital,Region,Subregion,Population,Gini,Flag)" +
-                        "VALUES('{0}','{1}','{2}','{3}',{4},'{5}','{6}')",
-                        country.Name.Replace("'", "´"), country.Capital.Replace("'", "´"), country.Region,
-                        country.Subregion, country.Population, country.Gini,country.Flag);
+                    foreach (var country in countries)
+                    {
+                        string sql =
+                            string.Format("INSERT INTO countries(Name,Capital,Region,Subregion,Population,Gini,Flag)" +
+                            "VALUES('{0}','{1}','{2}','{3}',{4},'{5}','{6}')",
+                            country.Name.Replace("'", "´"), country.Capital.Replace("'", "´"), country.Region,
+                            country.Subregion, country.Population, country.Gini, country.Flag);
 
-                    command = new SQLiteCommand(sql, liteConnection);
+                        command = new SQLiteCommand(sql, liteConnection);
 
-                    command.ExecuteNonQuery();
+                        command.ExecuteNonQuery();
+                    }
+                    liteConnection.Close();
                 }
-                liteConnection.Close();
+                else
+                {
+                    MessageBox.Show("Houve uma falha ao carregar dados. Favor reiniciar programa",
+                        "ERRO", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             catch (Exception e)
             {

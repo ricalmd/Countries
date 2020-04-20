@@ -1,18 +1,13 @@
-﻿using Biblioteca;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Drawing;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Biblioteca;
+using Biblioteca.Services;
+using Svg;
 
 namespace Countries
 {
@@ -29,8 +24,11 @@ namespace Countries
 
         List<Country> Countries;
 
-        string url = "https://restcountries.eu", 
-            path = "/rest/v2/all?fields=name;capital;region;subregion;population;gini;flag";
+        string url = "https://restcountries.eu",
+            path = "/rest/v2/all?fields=name;capital;region;subregion;population;gini;flag",
+            equal = string.Empty;
+        int num;
+        bool verif;
 
         public MainWindow()
         {
@@ -42,10 +40,95 @@ namespace Countries
             ReportProgress();
         }
 
+        private void btnVerPais_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if(cbxListaPaises.SelectedItem != null) 
+                {
+                    foreach (Country country in Countries)
+                    {
+                        if (country.Name == cbxListaPaises.Text && country.Name != equal)
+                        {
+                            lblCapital.Content = $"Name: {country.Name}{Environment.NewLine}Capital: {country.Capital}" +
+                                $"{Environment.NewLine}Region: {country.Region}{Environment.NewLine}Subregion: " +
+                                $"{country.Subregion}{Environment.NewLine}Population: {country.Population}" +
+                                $"{Environment.NewLine}Gini coefficient: {country.Gini}";
+
+                            ConvertHtmlToImage(country.Name);
+                            equal = country.Name;
+
+                            lblAvisoImg.Content = string.Empty;
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Selecione uma opção", "Informação", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+            }
+            catch(Exception ex)
+            {
+                imgFlag.Source = null;
+                lblAvisoImg.Content = ex.Message;
+            }
+        }
+
+        private void ConvertHtmlToImage(string name)
+        {
+            var svgDocument = SvgDocument.Open($"FlagImg/{name.Replace("´", "'")}.svg");  
+            svgDocument.ShapeRendering = SvgShapeRendering.Auto;
+
+            Bitmap bmp = svgDocument.Draw(400, 200);
+
+            if (verif == true)
+            {
+                num = 0;
+                verif = false;
+            }
+            else if(verif == false)
+            {
+                num = 1;
+                verif = true;
+            }
+
+            bmp.Save($"img{num}.jpg");
+
+            FlagImage();
+        }
+
+        private void FlagImage()
+        {
+            BitmapImage bitmapImage = new BitmapImage();
+
+            bitmapImage.BeginInit();
+            bitmapImage.UriSource = new Uri(AppDomain.CurrentDomain.BaseDirectory + $"img{num}.jpg", UriKind.Absolute);
+            bitmapImage.EndInit();
+
+            imgFlag.Source = bitmapImage;
+        }
+
+        private async Task LoadApiCountries()
+        {
+            var response = await api.GetCountries(url, path);
+
+            Countries = (List<Country>)response.Result;
+
+            if (Countries != null)
+            {
+                LoadFlags();
+            }
+
+            data.DeleteData();
+
+            data.SaveData(Countries);
+        }
+
         private async void LoadCountries()
         {
             var connection = network.CheckConnection();
-            
+
             if (!connection.Connect)
             {
                 LoadLocalCountries();
@@ -61,12 +144,21 @@ namespace Countries
             cbxListaPaises.DisplayMemberPath = "Name";
         }
 
-        private async void ReportProgress()
+        private async void LoadFlags()
         {
-            while(!api.GetCountries(url, path).IsCompleted)
+            WebClient client = new WebClient();
+
+            try
             {
-                pgbProgresso.Value++;
-                await Task.Delay(1);            
+                foreach (Country country in Countries)
+                {
+                    client.DownloadFile(country.Flag, $"FlagImg/{country.Name}.svg");
+                    await Task.Delay(50);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "ERRO", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -75,37 +167,12 @@ namespace Countries
             Countries = data.GetData();
         }
 
-        private async Task LoadApiCountries()
+        private async void ReportProgress()
         {
-            var response = await api.GetCountries(url, path);
-
-            Countries = (List<Country>)response.Result;
-
-            data.DeleteData();
-
-            data.SaveData(Countries);
-        }
-
-        private void btnVerPais_Click(object sender, RoutedEventArgs e)
-        {
-            foreach(Country country in Countries)
+            while (!api.GetCountries(url, path).IsCompleted)
             {
-                if (cbxListaPaises.SelectedItem != null)
-                {
-                    if (country.Name == cbxListaPaises.Text)
-                    {
-                        lblCapital.Content = $"Name: {country.Name}{Environment.NewLine}Capital: {country.Capital}" +
-                            $"{Environment.NewLine}Region: {country.Region}{Environment.NewLine}Subregion: " +
-                            $"{country.Subregion}{Environment.NewLine}Population: {country.Population}" +
-                            $"{Environment.NewLine}Gini coefficient: {country.Gini}{Environment.NewLine}" +
-                            $"Flag: {country.Flag}";
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("Selecione uma opção","Informação",MessageBoxButton.OK,MessageBoxImage.Information);
-                    return;
-                }
+                pgbProgresso.Value++;
+                await Task.Delay(1);
             }
         }
     }
