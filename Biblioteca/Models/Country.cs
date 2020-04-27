@@ -1,4 +1,6 @@
-﻿namespace Biblioteca
+﻿using System.Collections.Generic;
+
+namespace Biblioteca
 {
     public class Country
     {
@@ -15,5 +17,7 @@
         public double Gini { get; set; }
 
         public string Flag { get; set; }
+
+        public List<Currency> Currencies { get; set; }
     }
 }

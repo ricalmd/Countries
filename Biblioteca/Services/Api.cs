@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace Biblioteca
+namespace Biblioteca.Models
 {
     public class Api
     {
@@ -24,7 +24,7 @@ namespace Biblioteca
                     return new Response
                     {
                         Connect = false,
-                        Message = result,
+                        Message = result
                     };
                 }
                 var countries = JsonConvert.DeserializeObject<List<Country>>(result);
@@ -32,7 +32,7 @@ namespace Biblioteca
                 return new Response
                 {
                     Connect = true,
-                    Result = countries,
+                    Result = countries
                 };
             }
             catch (Exception ex)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace Biblioteca.Services
@@ -26,8 +27,9 @@ namespace Biblioteca.Services
                 liteConnection.Open();
 
                 string sqlcommand =
-                    "CREATE TABLE IF NOT EXISTS countries(Name VARCHAR(100),Capital VARCHAR(100), Region VARCHAR(100)," +
-                    "Subregion VARCHAR(100), Population INT, Gini REAL, Flag VARCHAR(100))";
+                    "CREATE TABLE IF NOT EXISTS countries(Id INT PRIMARY KEY, Name VARCHAR(100), " +
+                    "Capital VARCHAR(100), Region VARCHAR(100), Subregion VARCHAR(100), Population INT, Gini REAL, " +
+                    "Flag VARCHAR(100))";
 
                 command = new SQLiteCommand(sqlcommand, liteConnection);
 
@@ -43,14 +45,16 @@ namespace Biblioteca.Services
         {
             try
             {
+                int count = 1;
+
                 if (countries != null)
                 {
                     foreach (var country in countries)
                     {
                         string sql =
-                            string.Format("INSERT INTO countries(Name,Capital,Region,Subregion,Population,Gini,Flag)" +
-                            "VALUES('{0}','{1}','{2}','{3}',{4},'{5}','{6}')",
-                            country.Name.Replace("'", "´"), country.Capital.Replace("'", "´"), country.Region,
+                            string.Format("INSERT INTO countries(Id,Name,Capital,Region,Subregion,Population,Gini,Flag)" +
+                            "VALUES({0},'{1}','{2}','{3}','{4}',{5},'{6}','{7}')",
+                            count++, country.Name.Replace("'", "´"), country.Capital.Replace("'", "´"), country.Region,
                             country.Subregion, country.Population, country.Gini, country.Flag);
 
                         command = new SQLiteCommand(sql, liteConnection);

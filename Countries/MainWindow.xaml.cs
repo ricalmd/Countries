@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Biblioteca;
+using Biblioteca.Models;
 using Biblioteca.Services;
 using Svg;
 
@@ -16,102 +20,101 @@ namespace Countries
     /// </summary>
     public partial class MainWindow : Window
     {
-        Network network;
+        Network Network;
 
-        Data data;
+        Data Data;
 
-        Api api;
+        Api Api;
+
+        Currency Currency;
 
         List<Country> Countries;
 
         string url = "https://restcountries.eu",
-            path = "/rest/v2/all?fields=name;capital;region;subregion;population;gini;flag",
-            equal = string.Empty;
-        int num;
-        bool verif;
+            path = "/rest/v2/all?fields=name;capital;region;subregion;population;gini;flag;currencies";
 
         public MainWindow()
         {
             InitializeComponent();
-            network = new Network();
-            data = new Data();
-            api = new Api();
+            Network = new Network();
+            Data = new Data();
+            Api = new Api();
+            Currency = new Currency();
             LoadCountries();
             ReportProgress();
         }
-
-        private void btnVerPais_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// List of country names. By selecting an item from this list, the chosen data are sent to be 
+        /// displayed in lblPaises (text) and imgFlag (flag figures).
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cbxListaPaises_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             try
             {
-                if(cbxListaPaises.SelectedItem != null) 
+                foreach (Country country in Countries)
                 {
-                    foreach (Country country in Countries)
+                    GetCurrency(country.Currencies);
+                    
+                    if (Countries.IndexOf(country).Equals(cbxListaPaises.SelectedIndex))
                     {
-                        if (country.Name == cbxListaPaises.Text && country.Name != equal)
-                        {
-                            lblCapital.Content = $"Name: {country.Name}{Environment.NewLine}Capital: {country.Capital}" +
-                                $"{Environment.NewLine}Region: {country.Region}{Environment.NewLine}Subregion: " +
-                                $"{country.Subregion}{Environment.NewLine}Population: {country.Population}" +
-                                $"{Environment.NewLine}Gini coefficient: {country.Gini}";
+                        VerifyEmpty(country);
 
-                            ConvertHtmlToImage(country.Name);
-                            equal = country.Name;
+                        lblPaises.Content = $"Name: {country.Name}{Environment.NewLine}Capital: {country.Capital}" +
+                            $"{Environment.NewLine}Region: {country.Region}{Environment.NewLine}Subregion: " +
+                            $"{country.Subregion}{Environment.NewLine}Population: {country.Population}" +
+                            $"{Environment.NewLine}Gini coefficient: {country.Gini}" +
+                            $"{Environment.NewLine}Currency: {Currency.Name}; {Currency.Symbol}; {Currency.Code}";
 
-                            lblAvisoImg.Content = string.Empty;
-                        }
+                        ConvertSvgToImage(country.Name);
+
+                        lblAvisoImg.Content = string.Empty;
                     }
                 }
-                else
-                {
-                    MessageBox.Show("Selecione uma opção", "Informação", MessageBoxButton.OK, MessageBoxImage.Information);
-                    return;
-                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                imgFlag.Source = null;
                 lblAvisoImg.Content = ex.Message;
+                imgFlag.Source = null;
             }
         }
 
-        private void ConvertHtmlToImage(string name)
+        private void ConvertSvgToImage(string name)
         {
-            var svgDocument = SvgDocument.Open($"FlagImg/{name.Replace("´", "'")}.svg");  
-            svgDocument.ShapeRendering = SvgShapeRendering.Auto;
-
-            Bitmap bmp = svgDocument.Draw(400, 200);
-
-            if (verif == true)
-            {
-                num = 0;
-                verif = false;
-            }
-            else if(verif == false)
-            {
-                num = 1;
-                verif = true;
-            }
-
-            bmp.Save($"img{num}.jpg");
-
-            FlagImage();
-        }
-
-        private void FlagImage()
-        {
+            var svgDocument = SvgDocument.Open($"FlagImg/{name.Replace("´", "'")}.svg");
+            
+            MemoryStream memory = new MemoryStream();
             BitmapImage bitmapImage = new BitmapImage();
+            
+            using (var bmp = new Bitmap(svgDocument.Draw(400, 230)))
+            {
+                bmp.Save(memory, ImageFormat.Jpeg);
+                memory.Position = 0;
+                
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
 
-            bitmapImage.BeginInit();
-            bitmapImage.UriSource = new Uri(AppDomain.CurrentDomain.BaseDirectory + $"img{num}.jpg", UriKind.Absolute);
-            bitmapImage.EndInit();
-
+                memory.Close();
+            }
             imgFlag.Source = bitmapImage;
+        }
+
+        private void GetCurrency(List<Currency> currencies)
+        {
+            foreach (Currency currency in currencies)
+            {
+                Currency.Symbol = currency.Symbol;
+                Currency.Code = currency.Code;
+                Currency.Name = currency.Name;
+            }
         }
 
         private async Task LoadApiCountries()
         {
-            var response = await api.GetCountries(url, path);
+            var response = await Api.GetCountries(url, path);
 
             Countries = (List<Country>)response.Result;
 
@@ -120,14 +123,14 @@ namespace Countries
                 LoadFlags();
             }
 
-            data.DeleteData();
+            Data.DeleteData();
 
-            data.SaveData(Countries);
+            Data.SaveData(Countries);
         }
 
         private async void LoadCountries()
         {
-            var connection = network.CheckConnection();
+            var connection = Network.CheckConnection();
 
             if (!connection.Connect)
             {
@@ -144,7 +147,7 @@ namespace Countries
             cbxListaPaises.DisplayMemberPath = "Name";
         }
 
-        private async void LoadFlags()
+        private void LoadFlags()
         {
             WebClient client = new WebClient();
 
@@ -153,7 +156,6 @@ namespace Countries
                 foreach (Country country in Countries)
                 {
                     client.DownloadFile(country.Flag, $"FlagImg/{country.Name}.svg");
-                    await Task.Delay(50);
                 }
             }
             catch (Exception ex)
@@ -164,15 +166,33 @@ namespace Countries
 
         private void LoadLocalCountries()
         {
-            Countries = data.GetData();
+            Countries = Data.GetData();
         }
 
         private async void ReportProgress()
         {
-            while (!api.GetCountries(url, path).IsCompleted)
+            Response response = new Response();
+            
+            while (!response.Connect)
             {
                 pgbProgresso.Value++;
                 await Task.Delay(1);
+            }
+        }
+
+        private void VerifyEmpty(Country country)
+        {
+            if (country.Capital == string.Empty)
+            {
+                country.Capital = " - ";
+            }
+            if (country.Region == string.Empty)
+            {
+                country.Region = " - ";
+            }
+            if (country.Subregion == string.Empty)
+            {
+                country.Subregion = " - ";
             }
         }
     }
