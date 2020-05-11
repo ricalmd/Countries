@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,24 +21,25 @@ namespace Countries
     {
         Network Network;
 
-        Data Data;
+        DataCountry Data;
 
         Api Api;
 
-        Currency Currency;
+        Dialog Dialog;
 
         List<Country> Countries;
 
         string url = "https://restcountries.eu",
-            path = "/rest/v2/all?fields=name;capital;region;subregion;population;gini;flag;currencies";
+            path = "/rest/v2/all?fields=name;capital;region;subregion;population;gini;flag;numericCode;currencies",
+            textCurrency;
 
         public MainWindow()
         {
             InitializeComponent();
             Network = new Network();
-            Data = new Data();
+            Data = new DataCountry();
             Api = new Api();
-            Currency = new Currency();
+            Dialog = new Dialog();
             LoadCountries();
             ReportProgress();
         }
@@ -55,27 +55,29 @@ namespace Countries
             {
                 foreach (Country country in Countries)
                 {
-                    GetCurrency(country.Currencies);
-                    
                     if (Countries.IndexOf(country).Equals(cbxListaPaises.SelectedIndex))
                     {
+                        CountCurrency(country.Currencies);
                         VerifyEmpty(country);
 
-                        lblPaises.Content = $"Name: {country.Name}{Environment.NewLine}Capital: {country.Capital}" +
-                            $"{Environment.NewLine}Region: {country.Region}{Environment.NewLine}Subregion: " +
-                            $"{country.Subregion}{Environment.NewLine}Population: {country.Population}" +
-                            $"{Environment.NewLine}Gini coefficient: {country.Gini}" +
-                            $"{Environment.NewLine}Currency: {Currency.Name}; {Currency.Symbol}; {Currency.Code}";
-
+                        lblPaises.Content = $"Name:{Environment.NewLine}    {country.Name}{Environment.NewLine}" +
+                            $"Capital:{Environment.NewLine}    {country.Capital}" +
+                            $"{Environment.NewLine}Region:{Environment.NewLine}    {country.Region}" +
+                            $"{Environment.NewLine}Subregion:{Environment.NewLine}" +
+                            $"    {country.Subregion}{Environment.NewLine}Population:{Environment.NewLine}" +
+                            $"    {country.Population}" +
+                            $"{Environment.NewLine}Gini coefficient:{Environment.NewLine}    {country.Gini}" +
+                            $"{Environment.NewLine}Currency:{Environment.NewLine}{textCurrency}";
+                        
                         ConvertSvgToImage(country.Name);
-
                         lblAvisoImg.Content = string.Empty;
                     }
                 }
             }
             catch (Exception ex)
             {
-                lblAvisoImg.Content = ex.Message;
+                Dialog.ShowMessage(ex.Message, "ERRO");
+                lblAvisoImg.Content = "Bandeira ausente";
                 imgFlag.Source = null;
             }
         }
@@ -102,13 +104,34 @@ namespace Countries
             imgFlag.Source = bitmapImage;
         }
 
-        private void GetCurrency(List<Currency> currencies)
+        private void CountCurrency(List<Currency> currencies)
         {
-            foreach (Currency currency in currencies)
+            int count = 0;
+
+            foreach (var currency in currencies)
             {
-                Currency.Symbol = currency.Symbol;
-                Currency.Code = currency.Code;
-                Currency.Name = currency.Name;
+                count++;
+            }
+            DisplayCurrency(currencies, count);
+        }
+
+        private void DisplayCurrency(List<Currency> currencies, int count)
+        {
+            int num = 0;
+            
+            string[] text1 = new string[count];
+            string aux;
+            textCurrency = string.Empty;
+            
+            foreach (var currency in currencies)
+            {
+                VerifyEmptyCurrency(currency);
+
+                text1[num] = $"    {currency.Name}, {currency.Symbol}, {currency.Code}{Environment.NewLine}";
+                aux = text1[num];
+                textCurrency += aux;
+
+                num++;
             }
         }
 
@@ -160,7 +183,7 @@ namespace Countries
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "ERRO", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Dialog.ShowMessage(ex.Message, "ERRO");
             }
         }
 
@@ -193,6 +216,22 @@ namespace Countries
             if (country.Subregion == string.Empty)
             {
                 country.Subregion = " - ";
+            }
+        }
+
+        private void VerifyEmptyCurrency(Currency currency)
+        {
+            if (currency.Name == null)
+            {
+                currency.Name = " - ";
+            }
+            if (currency.Symbol == null)
+            {
+                currency.Symbol = " - ";
+            }
+            if (currency.Code == null)
+            {
+                currency.Code = " - ";
             }
         }
     }

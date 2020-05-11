@@ -18,6 +18,8 @@ namespace Biblioteca
 
         public string Flag { get; set; }
 
+        public string NumericCode { get; set; }
+
         public List<Currency> Currencies { get; set; }
     }
 }
