@@ -30,7 +30,8 @@ namespace Countries
         List<Country> Countries;
 
         string url = "https://restcountries.eu",
-            path = "/rest/v2/all?fields=name;capital;region;subregion;population;gini;flag;numericCode;currencies",
+            path = "/rest/v2/all?fields=name;alpha2Code;alpha3Code;capital;region;subregion;population;" +
+            "demonym;area;gini;nativeName;flag;numericCode;currencies;languages;cioc;translations",
             textCurrency;
 
         public MainWindow()
