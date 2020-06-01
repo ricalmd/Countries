@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using Biblioteca;
 using Biblioteca.Models;
 using Biblioteca.Services;
@@ -31,8 +32,9 @@ namespace Countries
 
         string url = "https://restcountries.eu",
             path = "/rest/v2/all?fields=name;alpha2Code;alpha3Code;capital;region;subregion;population;" +
-            "demonym;area;gini;nativeName;flag;numericCode;currencies;languages;cioc;translations",
-            textCurrency;
+            "demonym;area;gini;nativeName;flag;numericCode;currencies;languages;cioc;translations;topLevelDomain;" +
+            "callingCodes;altSpellings;latlng;timezones;borders;regionalBlocs",
+            textCurrency, textLanguage, loadMessage = string.Empty;
 
         public MainWindow()
         {
@@ -46,7 +48,7 @@ namespace Countries
         }
         /// <summary>
         /// List of country names. By selecting an item from this list, the chosen data are sent to be 
-        /// displayed in lblPaises (text) and imgFlag (flag figures).
+        /// displayed in lblPaises and lblCurrency (text) and imgFlag (flag figures).
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -59,6 +61,7 @@ namespace Countries
                     if (Countries.IndexOf(country).Equals(cbxListaPaises.SelectedIndex))
                     {
                         CountCurrency(country.Currencies);
+                        CountLanguages(country.Languages);
                         VerifyEmpty(country);
 
                         lblPaises.Content = $"Name:{Environment.NewLine}    {country.Name}{Environment.NewLine}" +
@@ -68,8 +71,11 @@ namespace Countries
                             $"    {country.Subregion}{Environment.NewLine}Population:{Environment.NewLine}" +
                             $"    {country.Population}" +
                             $"{Environment.NewLine}Gini coefficient:{Environment.NewLine}    {country.Gini}" +
-                            $"{Environment.NewLine}Currency:{Environment.NewLine}{textCurrency}";
-                        
+                            $"{Environment.NewLine}Language(s):{Environment.NewLine}{textLanguage}";
+                        lblCurrency.Content = $"Currency:{Environment.NewLine}{textCurrency}";
+                        lblArea.Content = $"Area: {country.Area} km2";
+
+                        ShowArea(country.Area);
                         ConvertSvgToImage(country.Name);
                         lblAvisoImg.Content = string.Empty;
                     }
@@ -83,28 +89,40 @@ namespace Countries
             }
         }
 
+        /// <summary>
+        /// The SvgDocument.Open() method opens an SVG document to be converted to an image in PNG format.
+        /// Since no image is saved in a folder, the bitmap is saved in memory using the MemoryStream class.
+        /// Using the Draw() method, the SVG is passed to the img variable where it is saved as a PNG image.
+        /// </summary>
+        /// <param name="name"></param>
         private void ConvertSvgToImage(string name)
         {
-            var svgDocument = SvgDocument.Open($"FlagImg/{name.Replace("´", "'")}.svg");
+            var svgDocument = SvgDocument.Open($"FlagImg/{name}.svg");
             
             MemoryStream memory = new MemoryStream();
             BitmapImage bitmapImage = new BitmapImage();
+            var img = svgDocument.Draw(400, 230);
+            img.Save(memory, ImageFormat.Png);
             
-            using (var bmp = new Bitmap(svgDocument.Draw(400, 230)))
-            {
-                bmp.Save(memory, ImageFormat.Jpeg);
-                memory.Position = 0;
+            memory.Position = 0;
                 
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = memory;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
+            bitmapImage.BeginInit();
+            bitmapImage.StreamSource = memory;
+            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+            bitmapImage.EndInit();
 
-                memory.Close();
-            }
+            memory.Close();
+            
             imgFlag.Source = bitmapImage;
         }
 
+        /// <summary>
+        /// This method performs the counting of elements in a list of currencies. These lists have different
+        /// numbers of elements and in order for the display of a list of currencies to be done properly, it is
+        /// necessary to know how many elements the list contains. The list and count value are passed to 
+        /// DisplayCurrency().
+        /// </summary>
+        /// <param name="currencies"></param>
         private void CountCurrency(List<Currency> currencies)
         {
             int count = 0;
@@ -116,35 +134,95 @@ namespace Countries
             DisplayCurrency(currencies, count);
         }
 
+        /// <summary>
+        /// This method performs the counting of elements in a list of languages. These lists have different
+        /// numbers of elements and in order for the display of a list of languages to be done properly, it is
+        /// necessary to know how many elements the list contains. The list and count value are passed to 
+        /// DisplayLanguages().
+        /// </summary>
+        /// <param name="languages"></param>
+        private void CountLanguages(List<Language> languages)
+        {
+            int count = 0;
+
+            foreach (var language in languages)
+            {
+                count++;
+            }
+            DisplayLanguages(languages, count);
+        }
+
+        /// <summary>
+        /// A list of currencies and the respective element count are passed to this method. An array of strings 
+        /// with the size provided by the count variable is used to form the text with the data contained in the 
+        /// list. Each element of the array is added to the textCurrency variable.
+        /// </summary>
+        /// <param name="currencies"></param>
+        /// <param name="count"></param>
         private void DisplayCurrency(List<Currency> currencies, int count)
         {
             int num = 0;
             
-            string[] text1 = new string[count];
-            string aux;
+            string[] text = new string[count];
             textCurrency = string.Empty;
             
             foreach (var currency in currencies)
             {
                 VerifyEmptyCurrency(currency);
 
-                text1[num] = $"    {currency.Name}, {currency.Symbol}, {currency.Code}{Environment.NewLine}";
-                aux = text1[num];
-                textCurrency += aux;
+                text[num] = $"    {currency.Name}, {currency.Symbol}, {currency.Code}{Environment.NewLine}";
+                textCurrency += text[num];
 
                 num++;
             }
         }
 
+        /// <summary>
+        /// A list of languages and the respective element count are passed to this method. An array of strings 
+        /// with the size provided by the count variable is used to form the text with the data contained in the 
+        /// list. Each element of the array is added to the textLanguage variable.
+        /// </summary>
+        /// <param name="languages"></param>
+        /// <param name="count"></param>
+        private void DisplayLanguages(List<Language> languages, int count)
+        {
+            int num = 0;
+
+            string[] text = new string[count];
+            textLanguage = string.Empty;
+
+            foreach (var language in languages)
+            {
+                text[num] = $"    {language.Name}, {language.NativeName}{Environment.NewLine}";
+                textLanguage += text[num];
+
+                num++;
+            }
+        }
+
+        /// <summary>
+        /// Method that receives the list of countries. The response variable receives the values of the GetCountries() 
+        /// method, in the Api class. The Countries list receives the list contained in the Result object through the 
+        /// response, being cast to that purpose. If Countries is different from 
+        /// null, the process proceeds normally, switching to the LoadFlags() method, in which SVG files are 
+        /// loaded into the folder. If the list is not loaded, an error message is displayed.
+        /// </summary>
+        /// <returns></returns>
         private async Task LoadApiCountries()
         {
+            loadMessage = "A carregar dados...";
+
             var response = await Api.GetCountries(url, path);
 
             Countries = (List<Country>)response.Result;
-
+        
             if (Countries != null)
             {
                 LoadFlags();
+            }
+            else
+            {
+                Dialog.ShowMessage(response.Message, "ERRO");
             }
 
             Data.DeleteData();
@@ -152,6 +230,13 @@ namespace Countries
             Data.SaveData(Countries);
         }
 
+        /// <summary>
+        /// The connection variable receives the Boolean value of the CheckConnection() method, in the Network class.
+        /// If this Boolean value is false, it goes to the LoadLocalCountries() method, so that data is collected from 
+        /// the database. In lblAviso it is indicated that the Internet connection was not successful. If the connection
+        /// is successful, then proceed to the LoadApiCountries() method where the received values come directly from 
+        /// the API. The values of the list of Countries are passed to the comboBox cbxListaPaises.
+        /// </summary>
         private async void LoadCountries()
         {
             var connection = Network.CheckConnection();
@@ -171,6 +256,10 @@ namespace Countries
             cbxListaPaises.DisplayMemberPath = "Name";
         }
 
+        /// <summary>
+        /// The DownloadFile() method, of the WebClient class, receives the API path for each existing SVG file,
+        /// and the path to the folder where those files will be kept in case there is no Internet connection.
+        /// </summary>
         private void LoadFlags()
         {
             WebClient client = new WebClient();
@@ -188,22 +277,72 @@ namespace Countries
             }
         }
 
+        /// <summary>
+        /// The list of countries receives the values from the database, using the GetData() method, in the Data class.
+        /// </summary>
         private void LoadLocalCountries()
         {
-            Countries = Data.GetData();
-        }
-
-        private async void ReportProgress()
-        {
-            Response response = new Response();
-            
-            while (!response.Connect)
+            try
             {
-                pgbProgresso.Value++;
-                await Task.Delay(1);
+                Countries = Data.GetData();
+            }
+            catch(Exception e)
+            {
+                Dialog.ShowMessage(e.Message, "ERRO");
             }
         }
 
+        /// <summary>
+        /// The progressBar progresses within a while cycle as long as the Confirm property of the Data class is false
+        /// and allows the user to be notified when the data is loaded in the database. 
+        /// The Delay() method causes the progressBar progression. The argument in the Delay() method is progressBar's
+        /// own advancement. 
+        /// </summary>
+        private async void ReportProgress()
+        {
+            while (Data.Confirm == false)
+            {
+                int progress = (int)pgbProgresso.Value++;
+                lblAviso.Content = loadMessage;
+                await Task.Delay(progress);
+
+                if(loadMessage == string.Empty && progress == 100)
+                {
+                    Data.Confirm = true;
+                }
+            }
+            lblAviso.Content = string.Empty;
+        }
+
+        /// <summary>
+        /// This method receives from the comboBox the value of the Area property, passed to the area variable.
+        /// Then, the value of this variable is integrated into a formula that allows obtaining the dimensions of
+        /// the circumference to be presented. The result of the formula is stored in the variable dim. Next, the
+        /// Ellipse class is instantiated, as well as the SolidColorBrush class. The color variable receives the 
+        /// color to be used in the Color property of the SolidColorBrush class. The Fill property, of the Ellipse 
+        /// class, receives the value of solidBrush. The Width and Height properties are given the value of the dim 
+        /// variable. Finally, a clear is made to delete the previous drawing and the display of the new drawing is made.
+        /// </summary>
+        /// <param name="area"></param>
+        private void ShowArea(double area)
+        {
+            double dim = Math.Sqrt(area / Math.PI) * 2 / 20;
+            
+            Ellipse ellipse = new Ellipse();
+            SolidColorBrush solidBrush = new SolidColorBrush();
+            var color = Color.FromRgb(233, 150, 119);
+            solidBrush.Color = color;
+            ellipse.Fill = solidBrush;
+            ellipse.Width = dim;
+            ellipse.Height = dim;
+            displayArea.Children.Clear();
+            displayArea.Children.Add(ellipse);
+        }
+
+        /// <summary>
+        /// If a property is not assigned a string, then a dash is displayed.
+        /// </summary>
+        /// <param name="country"></param>
         private void VerifyEmpty(Country country)
         {
             if (country.Capital == string.Empty)
@@ -219,7 +358,10 @@ namespace Countries
                 country.Subregion = " - ";
             }
         }
-
+        /// <summary>
+        /// If a property is not assigned a string, then a dash is displayed.
+        /// </summary>
+        /// <param name="currency"></param>
         private void VerifyEmptyCurrency(Currency currency)
         {
             if (currency.Name == null)

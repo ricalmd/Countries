@@ -4,11 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="InfoPaíses" Height="528.5" Width="921.5" Background="#bcd197">
-    <Grid Margin="10,0,0.667,-18.667">
+        Title="InfoPaíses" Height="590.5" Width="799.5" Background="#bcd197">
+    <Grid Margin="10,0,201.667,-18.667">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="143*"/>
-            <ColumnDefinition Width="83*"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="0*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="201*"/>
@@ -16,13 +16,16 @@
             <RowDefinition Height="49*"/>
             <RowDefinition Height="51*"/>
         </Grid.RowDefinitions>
-        <ComboBox Name="cbxListaPaises" FontWeight="Bold" FontSize="12px" HorizontalAlignment="Left" Margin="10,68,0,0" VerticalAlignment="Top" Width="348" Height="37" SelectionChanged="cbxListaPaises_SelectionChanged"/>
-        <Label Name="lblAviso" FontWeight="Bold" FontSize="12px" Content="" HorizontalAlignment="Left" Margin="10,198.333,0,0" VerticalAlignment="Top" Height="34" Width="326" Grid.Row="1"/>
-        <GroupBox Name="grpInfo" FontWeight="Bold" FontSize="18px" Header="Info" HorizontalAlignment="Left" Height="415" Margin="384,43,0,0" VerticalAlignment="Top" Width="472" Grid.RowSpan="3" Grid.ColumnSpan="2">
-            <Label Content="" Name="lblPaises" FontSize="12px" HorizontalAlignment="Right" Margin="0,10,20,0" VerticalAlignment="Top" Width="430"/>
+        <ComboBox Name="cbxListaPaises" FontWeight="Bold" FontSize="12px" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="348" Height="37" SelectionChanged="cbxListaPaises_SelectionChanged"/>
+        <Label Name="lblAviso" FontWeight="Bold" FontSize="12px" Content="" HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top" Height="34" Width="326" Grid.Row="2"/>
+        <GroupBox Name="grpInfo" FontWeight="Bold" FontSize="18px" Header="Info" Height="425" Margin="10,52,-119.333,0" VerticalAlignment="Top" Grid.RowSpan="3" Grid.ColumnSpan="2">
+            <Label Content="" Name="lblPaises" FontSize="12px" HorizontalAlignment="Right" Margin="0,10,338,0" VerticalAlignment="Top" Width="330"/>
         </GroupBox>
-        <ProgressBar Name="pgbProgresso" HorizontalAlignment="Left" Height="22" Margin="10,1.667,0,0" VerticalAlignment="Top" Width="348" Grid.Row="2"/>
-        <Image Name="imgFlag" HorizontalAlignment="Left" Height="100" Margin="64.833,9.333,0,0" VerticalAlignment="Top" Width="180" Grid.Row="1" Grid.Column="1"/>
-        <Label Name="lblAvisoImg" Content="" HorizontalAlignment="Left" Margin="64.833,9.333,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.469,0.006" Grid.Row="1" Height="27" Width="180" Grid.Column="1"/>
+        <ProgressBar Name="pgbProgresso" HorizontalAlignment="Left" Height="22" Margin="10,0,-119.333,0" VerticalAlignment="Top" Width="690" Grid.Row="3" Grid.ColumnSpan="2"/>
+        <Image Name="imgFlag" HorizontalAlignment="Left" Height="100" Margin="479,82.333,-78.333,0" VerticalAlignment="Top" Width="180" Grid.Row="1" Grid.ColumnSpan="2"/>
+        <Label Name="lblAvisoImg" Content="" HorizontalAlignment="Left" Margin="479,82.333,-78.333,0" VerticalAlignment="Top" RenderTransformOrigin="0.469,0.006" Grid.Row="1" Height="27" Width="180" Grid.ColumnSpan="2"/>
+        <Label Content="" Name="lblCurrency" FontSize="12px" HorizontalAlignment="Left" Margin="369,88,-103.333,0" VerticalAlignment="Top" Width="315" Grid.ColumnSpan="2" FontWeight="Bold" Height="180" Grid.RowSpan="2" Background="{x:Null}"/>
+        <Canvas Name="displayArea" HorizontalAlignment="Left" Height="125" Margin="232,0,0,50" VerticalAlignment="Bottom" Width="242" Grid.Row="1"/>
+        <Label Name="lblArea" Content="" FontSize="12px" FontWeight="Bold" HorizontalAlignment="Left" Height="28" Margin="232,59.667,0,0" VerticalAlignment="Top" Width="242" Grid.Row="1"/>
     </Grid>
 </Window>
