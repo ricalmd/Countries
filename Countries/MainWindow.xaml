@@ -27,5 +27,7 @@
         <Label Content="" Name="lblCurrency" FontSize="12px" HorizontalAlignment="Left" Margin="369,88,-103.333,0" VerticalAlignment="Top" Width="315" Grid.ColumnSpan="2" FontWeight="Bold" Height="180" Grid.RowSpan="2" Background="{x:Null}"/>
         <Canvas Name="displayArea" HorizontalAlignment="Left" Height="125" Margin="232,0,0,50" VerticalAlignment="Bottom" Width="242" Grid.Row="1"/>
         <Label Name="lblArea" Content="" FontSize="12px" FontWeight="Bold" HorizontalAlignment="Left" Height="28" Margin="232,59.667,0,0" VerticalAlignment="Top" Width="242" Grid.Row="1"/>
+        <Canvas Name="displayPopulation" HorizontalAlignment="Left" Height="27" Margin="107,22.667,0,0" VerticalAlignment="Top" Width="262" Grid.Row="1"/>
+        <Label Name="loadProgram" FontSize="12px" FontWeight="Bold" Content="" HorizontalAlignment="Left" Margin="341,10,0,0" Grid.Row="2" VerticalAlignment="Top" Width="197" Height="32"/>
     </Grid>
 </Window>

@@ -76,14 +76,14 @@ namespace Countries
                         lblArea.Content = $"Area: {country.Area} km2";
 
                         ShowArea(country.Area);
+                        ShowPopulation(country.Population);
                         ConvertSvgToImage(country.Name);
                         lblAvisoImg.Content = string.Empty;
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                Dialog.ShowMessage(ex.Message, "ERRO");
                 lblAvisoImg.Content = "Bandeira ausente";
                 imgFlag.Source = null;
             }
@@ -103,9 +103,9 @@ namespace Countries
             BitmapImage bitmapImage = new BitmapImage();
             var img = svgDocument.Draw(400, 230);
             img.Save(memory, ImageFormat.Png);
-            
+
             memory.Position = 0;
-                
+            
             bitmapImage.BeginInit();
             bitmapImage.StreamSource = memory;
             bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
@@ -264,6 +264,11 @@ namespace Countries
         {
             WebClient client = new WebClient();
 
+            if (!Directory.Exists("FlagImg"))
+            {
+                Directory.CreateDirectory("FlagImg");
+            }
+
             try
             {
                 foreach (Country country in Countries)
@@ -303,7 +308,7 @@ namespace Countries
             while (Data.Confirm == false)
             {
                 int progress = (int)pgbProgresso.Value++;
-                lblAviso.Content = loadMessage;
+                loadProgram.Content = loadMessage;
                 await Task.Delay(progress);
 
                 if(loadMessage == string.Empty && progress == 100)
@@ -311,7 +316,7 @@ namespace Countries
                     Data.Confirm = true;
                 }
             }
-            lblAviso.Content = string.Empty;
+            loadProgram.Content = string.Empty;
         }
 
         /// <summary>
@@ -337,6 +342,33 @@ namespace Countries
             ellipse.Height = dim;
             displayArea.Children.Clear();
             displayArea.Children.Add(ellipse);
+        }
+
+        /// <summary>
+        /// This method receives from the comboBox the value of the Population property, passed to the population variable.
+        /// Then, the value of this variable is divided, that allows obtaining the width of
+        /// the bar to be presented. The result of the calculation is stored in the variable dim. Next, the
+        /// Rectangle class is instantiated, as well as the SolidColorBrush class. The color variable receives the 
+        /// color to be used in the Color property of the SolidColorBrush class. The Fill property, of the Rectangle 
+        /// class, receives the value of solidBrush. The Width property are given the value of the dim 
+        /// variable. Finally, a clear is made to delete the previous drawing and the display of the new drawing is made.
+        /// </summary>
+        /// <param name="population"></param>
+        private void ShowPopulation(int population)
+        {
+            double dim = population / 2100000;
+
+            Rectangle rectangle = new Rectangle();
+            SolidColorBrush solidBrush = new SolidColorBrush();
+            var color = Color.FromRgb(233, 150, 119);
+            solidBrush.Color = color;
+            rectangle.Fill = solidBrush;
+            rectangle.Width = dim;
+            rectangle.Height = 20;
+            rectangle.RadiusX = 5;
+            rectangle.RadiusY = 5;
+            displayPopulation.Children.Clear();
+            displayPopulation.Children.Add(rectangle);
         }
 
         /// <summary>

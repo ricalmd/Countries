@@ -232,30 +232,31 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the altSpellings table, in the database. 
+        /// The use of variable a resolves the conflict that single quotes cause in SQL commands. As parameters,
+        /// this method receives a list of strings, so that data can be placed in the table, and the value of the 
+        /// Alpha2Code property, so that the altSpellings list is associated with a given country, in the database.
+        /// </summary>
+        /// <param name="altSpellings"></param>
+        /// <param name="code"></param>
         public void SaveAltSpellings(List<string> altSpellings, string code)
         {
             try
             {
                 byte count = 1;
                 char a = Convert.ToChar(34);
-
+                
                 while (count < altSpellings.Count)
                 {
-                    if (code != null)
-                    {
-                        string sql =
-                                string.Format("INSERT INTO altSpellings(AltSpellings,Country)" +
-                                "VALUES("+a+"{0}"+a+",'{1}');",
-                                altSpellings[count], code);
+                    string sql = string.Format("INSERT INTO altSpellings(AltSpellings,Country)" +
+                                    "VALUES("+a+"{0}"+a+",'{1}');",
+                                    altSpellings[count], code);
 
-                        command = new SQLiteCommand(sql, liteConnection);
+                    command = new SQLiteCommand(sql, liteConnection);
 
-                        command.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
-                    }
+                    command.ExecuteNonQuery();
+                    
                     count++;
                 }
             }
@@ -265,29 +266,29 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the borders table, in the database. As parameters, 
+        /// this method receives a list of strings, so that data can be placed in the table, and the value of the
+        /// Alpha2Code property, so that the borders list is associated with a given country, in the database.
+        /// </summary>
+        /// <param name="borders"></param>
+        /// <param name="code"></param>
         public void SaveBorders(List<string> borders, string code)
         {
             try
             {
                 byte count = 0;
-               
+                
                 while (count < borders.Count)
                 {
-                    if (code != null)
-                    {
-                        string sql =
-                                string.Format("INSERT INTO borders(Borders,Country)" +
-                                "VALUES('{0}','{1}');",
-                                borders[count], code);
+                    string sql = string.Format("INSERT INTO borders(Borders,Country)" +
+                                 "VALUES('{0}','{1}');",
+                                 borders[count], code);
 
-                        command = new SQLiteCommand(sql, liteConnection);
+                    command = new SQLiteCommand(sql, liteConnection);
 
-                        command.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
-                    }
+                    command.ExecuteNonQuery();
+                    
                     count++;
                 }
             }
@@ -297,29 +298,30 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the callingCodes table, in the database. 
+        /// As parameters, this method receives a list of strings, so that data can be placed in the table, and the 
+        /// value of the Alpha2Code property, so that the callingCodes list is associated with a given country, in 
+        /// the database.
+        /// </summary>
+        /// <param name="callingCodes"></param>
+        /// <param name="code"></param>
         public void SaveCallingCodes(List<string> callingCodes, string code)
         {
             try
             {
                 byte count = 0;
-
+                
                 while (count < callingCodes.Count)
                 {
-                    if (code != null)
-                    {
-                        string sql =
-                                string.Format("INSERT INTO callingCodes(CallingCodes,Country)" +
-                                "VALUES('{0}','{1}');",
-                                callingCodes[count], code);
+                    string sql = string.Format("INSERT INTO callingCodes(CallingCodes,Country)" +
+                                 "VALUES('{0}','{1}');",
+                                 callingCodes[count], code);
 
-                        command = new SQLiteCommand(sql, liteConnection);
+                    command = new SQLiteCommand(sql, liteConnection);
 
-                        command.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
-                    }
+                    command.ExecuteNonQuery();
+                    
                     count++;
                 }
             }
@@ -329,28 +331,28 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the currencies table, in the database. As parameters,
+        /// this method receives a list of currencies, so that data can be placed in the table, and the value of the 
+        /// Alpha2Code property, so that the currencies list is associated with a given country, in the database. The 
+        /// use of variable a resolves the conflict that single quotes cause in SQL commands.
+        /// </summary>
+        /// <param name="currencies"></param>
+        /// <param name="code"></param>
         public void SaveCurrency(List<Currency> currencies, string code)
         {
             try
             {
-                if (currencies != null)
+                foreach (var currency in currencies)
                 {
-                    foreach (var currency in currencies)
-                    {
-                        char a = Convert.ToChar(34);
-                        string sql =
-                                string.Format("INSERT INTO currencies(Name,Code,Symbol,Country)" +
-                                "VALUES("+a+"{0}"+a+","+a+"{1}"+a+","+a+"{2}"+a+",'{3}');",
-                                currency.Name, currency.Code, currency.Symbol, code);
+                    char a = Convert.ToChar(34);
+                    string sql = string.Format("INSERT INTO currencies(Name,Code,Symbol,Country)" +
+                                 "VALUES("+a+"{0}"+a+","+a+"{1}"+a+","+a+"{2}"+a+",'{3}');",
+                                 currency.Name, currency.Code, currency.Symbol, code);
 
-                        command = new SQLiteCommand(sql, liteConnection);
+                    command = new SQLiteCommand(sql, liteConnection);
 
-                        command.ExecuteNonQuery();
-                    }
-                }
-                else
-                {
-                    dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
+                    command.ExecuteNonQuery();
                 }
             }
             catch (Exception e)
@@ -359,6 +361,16 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// Within the foreach cycle, this method introduces the data found in the list of countries to the countries table.
+        /// The data that does not go into this table, are passed as parameters to several methods with similar function.
+        /// To avoid a prolonged deadlock, the method is asynchronous and a task is returned by Task.Run(). The 
+        /// BeginTransaction() and Commit() methods improve the time it takes to enter data into tables. The use of 
+        /// variable a resolves the conflict that single quotes cause in SQL commands. The Confirm property is assigned a
+        /// value of true so that, in MainWindow, the ReportProgress() method indicates to the user whether or not data is
+        /// being loaded into the database.
+        /// </summary>
+        /// <param name="countries"></param>
         public async void SaveData(List<Country> countries)
         {
             try
@@ -369,38 +381,50 @@ namespace Biblioteca.Services
                     { 
                         foreach (var country in countries)
                         {
-                            var transaction = liteConnection.BeginTransaction();
+                            if (country.Translations != null && country.Name != null && country.Alpha2Code != null &&
+                            country.Flag != null && country.AltSpellings != null && country.Borders != null &&
+                            country.CallingCodes != null && country.Currencies != null && country.Languages != null &&
+                            country.Latlng != null && country.RegionalBlocs != null && country.Timezones != null &&
+                            country.TopLevelDomain != null)
+                            {
+                                var transaction = liteConnection.BeginTransaction();
 
-                            char a = Convert.ToChar(34);
-                            string sql =
-                                string.Format("INSERT INTO countries(Name,Alpha2Code,Alpha3Code," +
-                                "Capital,Region,Subregion,Population,Demonym,Area,Gini,Flag,NumericCode,NativeName," +
-                                "Cioc)" +
-                                "VALUES(" + a + "{0}" + a + ",'{1}','{2}'," + a + "{3}" + a + "," + a + "{4}" + a + "," + a + "{5}" +
-                                "" + a + ",{6}," + a + "{7}" + a + ",'{8}','{9}'," + a + "{10}" + a + ",'{11}'" +
-                                "," + a + "{12}" + a + ",'{13}');",
-                                country.Name, country.Alpha2Code, country.Alpha3Code, country.Capital, country.Region,
-                                country.Subregion, country.Population, country.Demonym, country.Area,
-                                country.Gini, country.Flag, country.NumericCode, country.NativeName, country.Cioc);
+                                char a = Convert.ToChar(34);
+                                string sql =
+                                    string.Format("INSERT INTO countries(Name,Alpha2Code,Alpha3Code," +
+                                    "Capital,Region,Subregion,Population,Demonym,Area,Gini,Flag,NumericCode,NativeName," +
+                                    "Cioc)" +
+                                    "VALUES(" + a + "{0}" + a + ",'{1}','{2}'," + a + "{3}" + a + "," + a + "{4}" + a + "," + a + "{5}" +
+                                    "" + a + ",{6}," + a + "{7}" + a + ",'{8}','{9}'," + a + "{10}" + a + ",'{11}'" +
+                                    "," + a + "{12}" + a + ",'{13}');",
+                                    country.Name, country.Alpha2Code, country.Alpha3Code, country.Capital, country.Region,
+                                    country.Subregion, country.Population, country.Demonym, country.Area,
+                                    country.Gini, country.Flag, country.NumericCode, country.NativeName, country.Cioc);
 
-                            command = new SQLiteCommand(sql, liteConnection);
-                            command.ExecuteNonQuery();
+                                command = new SQLiteCommand(sql, liteConnection);
+                                command.ExecuteNonQuery();
 
-                            SaveCurrency(country.Currencies, country.Alpha2Code);
-                            SaveLanguage(country.Languages, country.Alpha2Code);
-                            SaveTranslations(country.Translations.De, country.Translations.Es, country.Translations.Fr,
-                                country.Translations.Ja, country.Translations.It, country.Translations.Br,
-                                country.Translations.Pt, country.Translations.Nl, country.Translations.Hr,
-                                country.Translations.Fa, country.Alpha2Code);
-                            SaveTopLevelDomain(country.TopLevelDomain, country.Alpha2Code);
-                            SaveCallingCodes(country.CallingCodes, country.Alpha2Code);
-                            SaveAltSpellings(country.AltSpellings, country.Alpha2Code);
-                            SaveLatlng(country.Latlng, country.Alpha2Code);
-                            SaveTimezones(country.Timezones, country.Alpha2Code);
-                            SaveBorders(country.Borders, country.Alpha2Code);
-                            SaveRegionalBlocs(country.RegionalBlocs, country.Alpha2Code);
+                                SaveCurrency(country.Currencies, country.Alpha2Code);
+                                SaveLanguage(country.Languages, country.Alpha2Code);
+                                SaveTranslations(country.Translations.De, country.Translations.Es, country.Translations.Fr,
+                                    country.Translations.Ja, country.Translations.It, country.Translations.Br,
+                                    country.Translations.Pt, country.Translations.Nl, country.Translations.Hr,
+                                    country.Translations.Fa, country.Alpha2Code);
+                                SaveTopLevelDomain(country.TopLevelDomain, country.Alpha2Code);
+                                SaveCallingCodes(country.CallingCodes, country.Alpha2Code);
+                                SaveAltSpellings(country.AltSpellings, country.Alpha2Code);
+                                SaveLatlng(country.Latlng, country.Alpha2Code);
+                                SaveTimezones(country.Timezones, country.Alpha2Code);
+                                SaveBorders(country.Borders, country.Alpha2Code);
+                                SaveRegionalBlocs(country.RegionalBlocs, country.Alpha2Code);
 
-                            transaction.Commit(); 
+                                transaction.Commit();
+                            }
+                            else
+                            {
+                                dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
+                                return;
+                            }
                         }
                     });
                     liteConnection.Close();
@@ -410,6 +434,7 @@ namespace Biblioteca.Services
                 else
                 {
                     dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
+                    return;
                 }
             }
             catch (Exception e)
@@ -418,28 +443,28 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the languages table, in the database. As parameters,
+        /// this method receives a list of languages, so that data can be placed in the table, and the value of the
+        /// Alpha2Code property, so that the list of languages is associated with a given country, in the database. The 
+        /// use of variable a resolves the conflict that single quotes cause in SQL commands.
+        /// </summary>
+        /// <param name="languages"></param>
+        /// <param name="code"></param>
         public void SaveLanguage(List<Language> languages, string code)
         {
             try
             {
-                if (languages != null)
+                foreach (var language in languages)
                 {
-                    foreach (var language in languages)
-                    {
-                        char a = Convert.ToChar(34);
-                        string sql =
-                                string.Format("INSERT INTO languages(Iso639_1,Iso639_2,Name,NativeName,Country)" +
-                                "VALUES("+a+"{0}"+a+","+a+"{1}"+a+","+a+"{2}"+a+","+a+"{3}"+a+",'{4}');",
-                                language.Iso639_1, language.Iso639_2, language.Name, language.NativeName, code);
+                    char a = Convert.ToChar(34);
+                    string sql = string.Format("INSERT INTO languages(Iso639_1,Iso639_2,Name,NativeName,Country)" +
+                                 "VALUES("+a+"{0}"+a+","+a+"{1}"+a+","+a+"{2}"+a+","+a+"{3}"+a+",'{4}');",
+                                 language.Iso639_1, language.Iso639_2, language.Name, language.NativeName, code);
 
-                        command = new SQLiteCommand(sql, liteConnection);
+                    command = new SQLiteCommand(sql, liteConnection);
 
-                        command.ExecuteNonQuery();
-                    }
-                }
-                else
-                {
-                    dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
+                    command.ExecuteNonQuery();
                 }
             }
             catch (Exception e)
@@ -448,29 +473,29 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the latIng table, in the database. As parameters,
+        /// this method receives a list of doubles, so that data is placed in the table, and the value of the Alpha2Code 
+        /// property, so that the latIng list is associated with a given country, in the database.
+        /// </summary>
+        /// <param name="latlng"></param>
+        /// <param name="code"></param>
         public void SaveLatlng(List<double> latlng, string code)
         {
             try
             {
                 byte count = 0;
-
+                
                 while (count < latlng.Count - 1)
                 {
-                    if (code != null)
-                    {
-                        string sql =
-                                string.Format("INSERT INTO latlng(Lat,Lng,Country)" +
-                                "VALUES('{0}','{1}','{2}');",
-                                latlng[count],latlng[count + 1], code);
+                    string sql = string.Format("INSERT INTO latlng(Lat,Lng,Country)" +
+                                 "VALUES('{0}','{1}','{2}');",
+                                 latlng[count],latlng[count + 1], code);
 
-                        command = new SQLiteCommand(sql, liteConnection);
+                    command = new SQLiteCommand(sql, liteConnection);
 
-                        command.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
-                    }
+                    command.ExecuteNonQuery();
+                    
                     count++;
                 }
             }
@@ -480,29 +505,30 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the otherAcronyms table, in the database. As
+        /// parameters, this method receives a list of objects, so that data is placed in the table, and the value of
+        /// the Acronym property, so that the other acronyms list is associated with a given regional bloc, in the 
+        /// database.
+        /// </summary>
+        /// <param name="acronym"></param>
+        /// <param name="otherAcronyms"></param>
         public void SaveOtherAcronyms(string acronym, List<object> otherAcronyms)
         {
             try
             {
                 byte count = 0;
-
+                
                 while (count < otherAcronyms.Count)
                 {
-                    if (acronym != null)
-                    {
-                        string sql =
-                                string.Format("INSERT INTO otherAcronyms(AcronymId,OtherAcronyms)" +
-                                "VALUES('{0}','{1}');",
-                                acronym, otherAcronyms[count]);
+                    string sql = string.Format("INSERT INTO otherAcronyms(AcronymId,OtherAcronyms)" +
+                                 "VALUES('{0}','{1}');",
+                                 acronym, otherAcronyms[count]);
 
-                        command = new SQLiteCommand(sql, liteConnection);
+                    command = new SQLiteCommand(sql, liteConnection);
 
-                        command.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
-                    }
+                    command.ExecuteNonQuery();
+                    
                     count++;
                 }
             }
@@ -512,6 +538,14 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the otherNames table, in the database. As
+        /// parameters, this method receives a list of objects, so that data is placed in the table, and the value of
+        /// the Acronym property, so that the other names list is associated with a given regional bloc, in the 
+        /// database.
+        /// </summary>
+        /// <param name="acronym"></param>
+        /// <param name="otherNames"></param>
         public void SaveOtherNames(string acronym, List<object> otherNames)
         {
             try
@@ -520,21 +554,14 @@ namespace Biblioteca.Services
 
                 while (count < otherNames.Count)
                 {
-                    if (acronym != null)
-                    {
-                        string sql =
-                                string.Format("INSERT INTO otherNames(AcronymId,OtherNames)" +
-                                "VALUES('{0}','{1}');",
-                                acronym, otherNames[count]);
+                    string sql = string.Format("INSERT INTO otherNames(AcronymId,OtherNames)" +
+                                 "VALUES('{0}','{1}');",
+                                 acronym, otherNames[count]);
 
-                        command = new SQLiteCommand(sql, liteConnection);
+                    command = new SQLiteCommand(sql, liteConnection);
 
-                        command.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
-                    }
+                    command.ExecuteNonQuery();
+                    
                     count++;
                 }
             }
@@ -544,31 +571,32 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the regionalBlocs table, in the database.
+        /// As parameters, this method receives a list of regional blocs, so that data can be placed in the table, and the
+        /// value of the Alpha2Code property, so that the list of regional blocs is associated with a given country, in the 
+        /// database. The use of variable a resolves the conflict that single quotes cause in SQL commands. Parameters 
+        /// are sent to two other methods so that the otherAcronyms and otherNames tables are filled.
+        /// </summary>
+        /// <param name="regionalBlocs"></param>
+        /// <param name="code"></param>
         public void SaveRegionalBlocs(List<RegionalBloc> regionalBlocs, string code)
         {
             try
             {
-                if (regionalBlocs != null)
+                foreach (var regionalBloc in regionalBlocs)
                 {
-                    foreach (var regionalBloc in regionalBlocs)
-                    {
-                        char a = Convert.ToChar(34);
-                        string sql =
-                                string.Format("INSERT INTO regionalBlocs(Acronym,Name,Country)" +
-                                "VALUES('{0}',"+a+"{1}"+a+",'{2}');",
-                                regionalBloc.Acronym, regionalBloc.Name, code);
+                    char a = Convert.ToChar(34);
+                    string sql = string.Format("INSERT INTO regionalBlocs(Acronym,Name,Country)" +
+                                 "VALUES('{0}',"+a+"{1}"+a+",'{2}');",
+                                 regionalBloc.Acronym, regionalBloc.Name, code);
 
-                        command = new SQLiteCommand(sql, liteConnection);
+                    command = new SQLiteCommand(sql, liteConnection);
 
-                        command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
                         
-                        SaveOtherAcronyms(regionalBloc.Acronym, regionalBloc.OtherAcronyms);
-                        SaveOtherNames(regionalBloc.Acronym, regionalBloc.OtherNames);
-                    }
-                }
-                else
-                {
-                    dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
+                    SaveOtherAcronyms(regionalBloc.Acronym, regionalBloc.OtherAcronyms);
+                    SaveOtherNames(regionalBloc.Acronym, regionalBloc.OtherNames);
                 }
             }
             catch (Exception e)
@@ -577,29 +605,29 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the timezones table, in the database. As parameters,
+        /// this method receives a list of strings, so that data is placed in the table, and the value of the Alpha2Code
+        /// property, so that the list of timezones is associated with a given country, in the database.
+        /// </summary>
+        /// <param name="timezones"></param>
+        /// <param name="code"></param>
         public void SaveTimezones(List<string> timezones, string code)
         {
             try
             {
                 byte count = 0;
-
+                
                 while (count < timezones.Count)
                 {
-                    if (code != null)
-                    {
-                        string sql =
-                                string.Format("INSERT INTO timezones(Timezones,Country)" +
-                                "VALUES('{0}','{1}');",
-                                timezones[count], code);
+                    string sql = string.Format("INSERT INTO timezones(Timezones,Country)" +
+                                 "VALUES('{0}','{1}');",
+                                 timezones[count], code);
 
-                        command = new SQLiteCommand(sql, liteConnection);
+                    command = new SQLiteCommand(sql, liteConnection);
 
-                        command.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
-                    }
+                    command.ExecuteNonQuery();
+                    
                     count++;
                 }
             }
@@ -609,29 +637,29 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the topLevelDomain table, in the database. As
+        /// parameters, this method receives a list of strings, so that data is placed in the table, and the value of 
+        /// the Alpha2Code property, so that the topLevelDomain list is associated with a given country, in the database.
+        /// </summary>
+        /// <param name="topLevelDomain"></param>
+        /// <param name="code"></param>
         public void SaveTopLevelDomain(List<string> topLevelDomain, string code)
         {
             try
             {
                 byte count = 0;
-
+                
                 while (count < topLevelDomain.Count)
                 {
-                    if (code != null)
-                    {
-                        string sql =
-                                string.Format("INSERT INTO topLevelDomain(Domain,Country)" +
-                                "VALUES('{0}','{1}');",
-                                topLevelDomain[count], code);
+                    string sql = string.Format("INSERT INTO topLevelDomain(Domain,Country)" +
+                                 "VALUES('{0}','{1}');",
+                                 topLevelDomain[count], code);
 
-                        command = new SQLiteCommand(sql, liteConnection);
+                    command = new SQLiteCommand(sql, liteConnection);
 
-                        command.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
-                    }
+                    command.ExecuteNonQuery();
+                    
                     count++;
                 }
             }
@@ -641,28 +669,40 @@ namespace Biblioteca.Services
             }
         }
 
+        /// <summary>
+        /// In the foreach cycle, this method introduces the data in the translations table, in the database.
+        /// As parameters, this method receives the values of the properties of an object of the Translations class,
+        /// so that data is placed in the table, and the value of the Alpha2Code property, so that the values are 
+        /// associated with a given country, in the database. The use of variable a resolves the conflict that single
+        /// quotes cause in SQL commands.
+        /// </summary>
+        /// <param name="de"></param>
+        /// <param name="es"></param>
+        /// <param name="fr"></param>
+        /// <param name="ja"></param>
+        /// <param name="it"></param>
+        /// <param name="br"></param>
+        /// <param name="pt"></param>
+        /// <param name="nl"></param>
+        /// <param name="hr"></param>
+        /// <param name="fa"></param>
+        /// <param name="code"></param>
         public void SaveTranslations(string de, string es, string fr, string ja, string it, string br, string pt, 
                             string nl, string hr, string fa, string code)
         {
             try
             {
-                if (code != null)
-                {
-                    char a = Convert.ToChar(34);
-                    string sql = 
-                            string.Format("INSERT INTO translations(De,Es,Fr,Ja,It,Br,Pt,Nl,Hr,Fa,Country)" +
-                            "VALUES("+a+"{0}"+a+","+a+"{1}"+a+","+a+"{2}"+a+","+a+"{3}"+a+","+a+"{4}"+a+","+a+"{5}" +
-                            ""+a+","+a+"{6}"+a+","+a+"{7}"+a+","+a+"{8}"+a+","+a+"{9}"+a+",'{10}');",
-                            de, es, fr, ja, it, br, pt, nl, hr, fa, code);
+                char a = Convert.ToChar(34);
+                string sql = 
+                        string.Format("INSERT INTO translations(De,Es,Fr,Ja,It,Br,Pt,Nl,Hr,Fa,Country)" +
+                        "VALUES("+a+"{0}"+a+","+a+"{1}"+a+","+a+"{2}"+a+","+a+"{3}"+a+","+a+"{4}"+a+","+a+"{5}" +
+                        ""+a+","+a+"{6}"+a+","+a+"{7}"+a+","+a+"{8}"+a+","+a+"{9}"+a+",'{10}');",
+                        de, es, fr, ja, it, br, pt, nl, hr, fa, code);
 
-                    command = new SQLiteCommand(sql, liteConnection);
+                command = new SQLiteCommand(sql, liteConnection);
 
-                    command.ExecuteNonQuery();
-                }
-                else
-                {
-                    dialog.ShowMessage("Houve uma falha ao carregar dados. Favor reiniciar programa", "ERRO");
-                }
+                command.ExecuteNonQuery();
+                
             }
             catch (Exception e)
             {
